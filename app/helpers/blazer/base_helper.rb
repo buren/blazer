@@ -32,8 +32,12 @@ module Blazer
       ENV["MAPBOX_ACCESS_TOKEN"].present?
     end
 
-    def blazer_js_var(name, value)
-      "var #{name} = #{blazer_json_escape(value.to_json)}".html_safe
+    def blazer_js_var(name, value, unroot = nil)
+      js_parts = ["var #{name} = #{blazer_json_escape(value.to_json)};".html_safe]
+      if unroot
+        js_parts << "for (var i = 0; i < dashboardQueries.length; i++) { if (dashboardQueries[i].#{unroot}) dashboardQueries[i] = dashboardQueries[i].#{unroot} }".html_safe
+      end
+      safe_join(js_parts, '')
     end
 
     JSON_ESCAPE = { '&' => '\u0026', '>' => '\u003e', '<' => '\u003c', "\u2028" => '\u2028', "\u2029" => '\u2029' }
